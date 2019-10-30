@@ -1,0 +1,1 @@
+rm -r data  && mkdir data &&  scrapy crawl npm -o ./data/data.json
