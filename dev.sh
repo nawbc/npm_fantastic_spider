@@ -6,7 +6,7 @@
 # Distributed under terms of the MIT license.
 #
 
-scrapy crawl npm
+scrapy crawl npm -a search=web
 
 
 

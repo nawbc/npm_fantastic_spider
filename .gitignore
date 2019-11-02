@@ -1,0 +1,4 @@
+.vscode
+npm_fantastic/__pycache__
+.idea
+/without_scrapy/

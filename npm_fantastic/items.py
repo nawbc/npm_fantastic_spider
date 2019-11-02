@@ -19,6 +19,7 @@ class NpmFantasticItem(scrapy.Item):
     pkg_homepage = scrapy.Field()
     pkg_last_update = scrapy.Field()
     pkg_quality = scrapy.Field()
+    pkg_collaborator = scrapy.Field()
     repo_link = scrapy.Field()
     repo_stars = scrapy.Field()
 
