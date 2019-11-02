@@ -1,4 +1,4 @@
-requests==2.12.4
+requests==2.20.0
 Scrapy==1.7.4
 pyquery==1.4.0
 beautifulsoup4==4.8.1
