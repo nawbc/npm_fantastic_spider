@@ -1,0 +1,6 @@
+selenium==3.141.0
+redis==3.3.11
+Scrapy==1.7.4
+pyquery==1.4.0
+requests==2.12.4
+beautifulsoup4==4.8.1

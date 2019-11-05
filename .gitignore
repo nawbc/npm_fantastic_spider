@@ -1,0 +1,7 @@
+.vscode
+.idea
+*.swp
+**/__pycache__
+npm_fantastic_no_scrapy/pymysql
+npm_fantastic_no_scrapy/requests
+
