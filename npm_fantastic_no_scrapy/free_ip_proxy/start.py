@@ -1,0 +1,5 @@
+from npm_fantastic_no_scrapy.free_ip_proxy.www_66_ip import get_ip_lists_from_66
+from npm_fantastic_no_scrapy.free_ip_proxy.www_xicidaili_com import get_ip_lists_from_xicidaili
+
+get_ip_lists_from_xicidaili()
+get_ip_lists_from_66()

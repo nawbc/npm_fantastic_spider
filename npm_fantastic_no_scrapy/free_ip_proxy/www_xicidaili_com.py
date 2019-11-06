@@ -9,6 +9,7 @@ from urllib.parse import urljoin
 initial_url = 'https://www.xicidaili.com'
 client = redis.Redis(host='localhost', port=6379, db=0, password='outlook9423')
 
+
 # proxy_url = ['http://' + json.loads(str(ip, encoding="utf-8"))['ip'] + ':' + json.loads(str(ip, encoding="utf-8"))['port'] for ip in client.lrange('66ip', 0, 100)]
 
 def recursive_url(chrome, url):
@@ -20,16 +21,14 @@ def recursive_url(chrome, url):
   for (index, ele) in enumerate(ip_list.find_elements_by_tag_name('tr')):
     if index != 0:
       tds = ele.find_elements_by_tag_name('td')
-      ip = tds[1].text
-      port = tds[2].text
-      result = json.dumps({'ip': ip, 'port': port})
+      ip = tds[1].text + ':' + tds[2].text
       live_time = tds[8].text
       isMinite = re.search('分钟', live_time) is None
       if not isMinite:
-        print('{} \033[31mnot pass'.format(result))
+        print('{} \033[31mnot pass'.format(ip))
       if isMinite:
-        print('{} \033[32mpass'.format(result))
-        client.lpush('xicidaili', result)
+        print('{} \033[32mpass'.format(ip))
+        client.lpush('xicidaili', ip)
 
   if next_page is not None:
     recursive_url(chrome, urljoin(initial_url, href))
@@ -50,4 +49,5 @@ def start_browser():
   time.sleep(1000)
 
 
-start_browser()
+def get_ip_lists_from_xicidaili():
+  start_browser()
