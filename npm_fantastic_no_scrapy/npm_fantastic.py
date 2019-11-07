@@ -58,7 +58,7 @@ def save_to_mysql(*data):
     db.execute(sql, data)
     con.commit()
   except Exception as e:
-    logger.error(e)
+    logger.error('Error(61):' + str(e))
     con.rollback()
   db.close()
 
@@ -119,25 +119,30 @@ def r_proxy():
 
 
 def req_pkg_details(url, info):
-  headers['User-Agent'] = random.choice(user_agents)
-  r = requests.get(url, headers=headers)
-  soup = BSoup(r.text, 'html.parser')
-  p_tags = soup.find_all('p', attrs={'class': compile('fw6 mb3 mt2 truncate black-80 f4')})
-  ul_tag = soup.find('ul', attrs={'class': 'list pl0 cf'})
-  repo_link = p_tags[3].a['href']
-  repo_api_link = urljoin(github_api, urlparse(repo_link).path)
-  pkg_version = p_tags[0].text
-  pkg_license = p_tags[1].text
-  pkg_homepage = p_tags[2].a['href']
-  pkg_repo = {'main': repo_link, 'api': repo_api_link}
-  pkg_collaborator = [handle_author_info(
-    a['href']) for a in ul_tag.find_all('a')]
-  pkg_last_update = soup.find('time').text
-
   try:
+    headers['User-Agent'] = random.choice(user_agents)
+    r = requests.get(url, headers=headers)
+    soup = BSoup(r.text, 'html.parser')
+    print(r.status_code)
+    p_tags = soup.find_all('p', attrs={'class': compile('fw6 mb3 mt2 truncate black-80 f4')})
+    print(p_tags)
+    ul_tag = soup.find('ul', attrs={'class': 'list pl0 cf'})
+    print(len(p_tags))
+    repo_link = p_tags[3].a['href']
+    repo_api_link = urljoin(github_api, urlparse(repo_link).path)
+    pkg_version = p_tags[0].text
+    pkg_license = p_tags[1].text
+    pkg_homepage = p_tags[2].a['href']
+    pkg_repo = {'main': repo_link, 'api': repo_api_link}
+    pkg_collaborator = [handle_author_info(
+      a['href']) for a in ul_tag.find_all('a')]
+    pkg_last_update = soup.find('time').text
+    pkg_name = info['pkg_name']
+
+    logger.info('Package: ' + pkg_name + ' --- ' + url)
     save_to_mysql(
-      info['pkg_name'],
-      info['pkg_link'],
+      pkg_name,
+      url,
       pkg_version,
       dumps(info['pkg_author']),
       pkg_license,
@@ -148,7 +153,7 @@ def req_pkg_details(url, info):
       dumps(pkg_repo)
     )
   except BaseException as e:
-    logger.error('Error:' + e)
+    logger.error('Error(150):' + str(e))
     return
   return
 
@@ -196,37 +201,37 @@ def get_each_page_by_keywords(k_url=None, keywords_stack=[], visited=[], m=30, q
         req_pkg_details(url, info)
       except BaseException as e:
         if e:
-          logger.error('Error: ' + str(e))
+          logger.error('Error(192): ' + str(e))
           continue
     else:
       if pqm['p'] > p and pqm['q'] > q and pqm['m'] > m:
         try:
-          logger.info('Package: ' + pkg_name + ' --- ' + pkg_link)
           req_pkg_details(url, info)
         except BaseException as e:
-          logger.error('Error: ' + str(e))
+          logger.error('Error(206): ' + str(e))
           continue
       else:
         logger.info('Ignore: ' + pkg_name)
 
-  next_page = soup \
-    .find_all('div', attrs={"class": compile("fl tl tr-l pt3-l pb1-l mb3")})[0] \
-    .find_all('a')
-  print(keywords_stack)
-
-  if len(keywords_stack) != 0:
-    if len(next_page) > 0:
-      next_btn = next_page[len(next_page) - 1]
-      is_next = next_btn.text[1:2] is '»'
-      next_href = urljoin(host, next_btn['href'])
-      if is_next:
-        get_each_page_by_keywords(next_href, keywords_stack, visited, a=a, m=m, q=q, p=p, proxy=proxy)
+    # try:
+    next_page = soup \
+      .find_all('div', attrs={"class": compile("fl tl tr-l pt3-l pb1-l mb3")})[0] \
+      .find_all('a')
+    if len(keywords_stack) != 0:
+      if len(next_page) > 0:
+        next_btn = next_page[len(next_page) - 1]
+        is_next = next_btn.text[1:2] is '»'
+        next_href = urljoin(host, next_btn['href'])
+        if is_next:
+          get_each_page_by_keywords(next_href, keywords_stack, visited, a=a, m=m, q=q, p=p, proxy=proxy)
+        else:
+          easy_req(keywords_stack, visited, a=a, m=m, q=q, p=p, proxy=proxy)
       else:
         easy_req(keywords_stack, visited, a=a, m=m, q=q, p=p, proxy=proxy)
     else:
-      easy_req(keywords_stack, visited, a=a, m=m, q=q, p=p, proxy=proxy)
-  else:
-    return True
+      return True
+  # except Exception:
+  #   easy_req(keywords_stack, visited, a=a, m=m, q=q, p=p, proxy=proxy)
 
 
 def npm_fantastic_start():
@@ -246,6 +251,7 @@ def npm_fantastic_start():
       get_each_page_by_keywords(initial_url, keywords_stack, visited, p=int(b))
     else:
       get_each_page_by_keywords(initial_url, keywords_stack, visited)
+
 
 if __name__ == '__main__':
   npm_fantastic_start()

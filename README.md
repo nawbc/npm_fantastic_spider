@@ -9,6 +9,7 @@
    - redis==3.3.11
    - beautifulsoup4==4.8.1
 
+
 scrapy 不可用 有时间再整
 
 ------
