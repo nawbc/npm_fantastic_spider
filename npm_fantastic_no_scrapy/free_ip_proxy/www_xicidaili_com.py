@@ -1,6 +1,5 @@
 import re
 import time
-import json
 import redis
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -28,6 +27,7 @@ def recursive_url(chrome, url):
         print('{} \033[31mnot pass'.format(ip))
       if isMinite:
         print('{} \033[32mpass'.format(ip))
+        chrome.get(ip)
         client.lpush('xicidaili', ip)
 
   if next_page is not None:
@@ -51,3 +51,5 @@ def start_browser():
 
 def get_ip_lists_from_xicidaili():
   start_browser()
+
+get_ip_lists_from_xicidaili()

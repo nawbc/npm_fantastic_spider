@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
+
 import sys
 import redis
 import pymysql
@@ -118,28 +119,26 @@ def r_proxy():
   return proxy
 
 
-def req_pkg_details(url, info):
+def req_pkg_details(url, info, proxy_url):
   try:
     headers['User-Agent'] = random.choice(user_agents)
-    r = requests.get(url, headers=headers)
+    time.sleep(3)
+    r = requests.get(url, headers=headers, proxies=proxy_url)
     soup = BSoup(r.text, 'html.parser')
-    print(r.status_code)
     p_tags = soup.find_all('p', attrs={'class': compile('fw6 mb3 mt2 truncate black-80 f4')})
-    print(p_tags)
     ul_tag = soup.find('ul', attrs={'class': 'list pl0 cf'})
-    print(len(p_tags))
     repo_link = p_tags[3].a['href']
     repo_api_link = urljoin(github_api, urlparse(repo_link).path)
     pkg_version = p_tags[0].text
     pkg_license = p_tags[1].text
     pkg_homepage = p_tags[2].a['href']
     pkg_repo = {'main': repo_link, 'api': repo_api_link}
-    pkg_collaborator = [handle_author_info(
-      a['href']) for a in ul_tag.find_all('a')]
+    pkg_collaborator = [handle_author_info(a['href']) for a in ul_tag.find_all('a')]
     pkg_last_update = soup.find('time').text
     pkg_name = info['pkg_name']
 
-    logger.info('Package: ' + pkg_name + ' --- ' + url)
+    logger.info('StatusCode:(' + str(r.status_code) + ')  ' + 'Package: ' + pkg_name + ' --- ' + url)
+    # 存放到mysql
     save_to_mysql(
       pkg_name,
       url,
@@ -164,14 +163,15 @@ def easy_req(keywords_stack, visited, **a):
   get_each_page_by_keywords(gen_search_url(pop), keywords_stack, visited, **a)
 
 
-def get_each_page_by_keywords(k_url=None, keywords_stack=[], visited=[], m=30, q=60, p=30, proxy=False,
-                              a=False):
+def get_each_page_by_keywords(k_url=None, keywords_stack=[], visited=[], m=30, q=60, p=30, proxy=False, a=False):
   headers['User-Agent'] = random.choice(user_agents)
-  time.sleep(1)
+  time.sleep(3)
   if proxy:
-    r = requests.get(k_url, headers=headers, proxies=r_proxy())
+    proxy_url = r_proxy()
   else:
-    r = requests.get(k_url, headers=headers)
+    proxy_url = None
+
+  r = requests.get(k_url, headers=headers, proxies=proxy_url)
 
   soup = BSoup(r.text, 'html.parser')
   item_list = soup.find_all('section',
@@ -197,8 +197,7 @@ def get_each_page_by_keywords(k_url=None, keywords_stack=[], visited=[], m=30, q
     url = urljoin(host, pkg_link)
     if a:
       try:
-        logger.info('Package: ' + pkg_name + ' --- ' + pkg_link)
-        req_pkg_details(url, info)
+        req_pkg_details(url, info, proxy_url)
       except BaseException as e:
         if e:
           logger.error('Error(192): ' + str(e))
@@ -206,7 +205,7 @@ def get_each_page_by_keywords(k_url=None, keywords_stack=[], visited=[], m=30, q
     else:
       if pqm['p'] > p and pqm['q'] > q and pqm['m'] > m:
         try:
-          req_pkg_details(url, info)
+          req_pkg_details(url, info, proxy_url)
         except BaseException as e:
           logger.error('Error(206): ' + str(e))
           continue
@@ -230,12 +229,12 @@ def get_each_page_by_keywords(k_url=None, keywords_stack=[], visited=[], m=30, q
         easy_req(keywords_stack, visited, a=a, m=m, q=q, p=p, proxy=proxy)
     else:
       return True
-  # except Exception:
-  #   easy_req(keywords_stack, visited, a=a, m=m, q=q, p=p, proxy=proxy)
 
-
+# dfs
 def npm_fantastic_start():
+  # 关键词
   keywords_stack = []
+  # 访问过的就不访问
   visited = []
   initial_url = 'https://npmjs.com/search?q=muguet'
   for (a, b) in optlist:

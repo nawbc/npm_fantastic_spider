@@ -15,7 +15,7 @@ scrapy 不可用 有时间再整
 ------
 ### 使用
 1. 更改 ./npm_fantastic_no_scrapy/npm_fantastic.py 中的用户密码
-2. 启动  `./start -a`
+2. 启动  `./start.sh -a`
    <br />
    默认开启 挑选优质库
    ```
