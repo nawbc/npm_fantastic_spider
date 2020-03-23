@@ -28,3 +28,6 @@ scrapy 不可用 有时间再整
    
 3. `python3 ./npm_fantastic_no_scrapy/free_ip_proxy/start.py 抓取高匿代理ip 需要redis` 
 
+### 原理
+dfs 遍历关键词
+
