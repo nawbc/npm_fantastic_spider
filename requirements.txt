@@ -2,5 +2,5 @@ Scrapy==1.7.4
 selenium==3.141.0
 PyMySQL==0.9.3
 requests==2.12.4
-redis==3.3.11
+redis==4.4.4
 beautifulsoup4==4.8.1
