@@ -23,7 +23,7 @@ scrapy 不可用 有时间再整
      -q [number]                质量
      -p [number]                受欢迎度
      -a                         抓取全部库
-     --proxy                    开启代理  不一定能用          
+     --proxy                    代理      
    ```
    
 3. `python3 ./npm_fantastic_no_scrapy/free_ip_proxy/start.py 抓取高匿代理ip 需要redis` 

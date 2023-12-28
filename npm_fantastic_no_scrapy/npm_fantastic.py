@@ -41,7 +41,6 @@ headers = {
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-
 def save_to_mysql(*data):
   db = con.cursor()
   sql = 'INSERT INTO `npm_info`' \
@@ -63,7 +62,6 @@ def save_to_mysql(*data):
     con.rollback()
   db.close()
 
-
 def sub_keywords(keywords_stack, visited, val):
   try:
     visited.index(val)
@@ -73,7 +71,6 @@ def sub_keywords(keywords_stack, visited, val):
     except Exception:
       keywords_stack.append(val)
 
-
 def handle_author_info(link):
   name = search('(?<=/~)(.)+', link).group(0)
   lk = urljoin(host, link)
@@ -81,7 +78,6 @@ def handle_author_info(link):
     'name': name,
     'homepage': lk
   }
-
 
 def handle_pqm(item):
   wrapper = item.find('div', attrs={'class': compile(
@@ -96,7 +92,6 @@ def handle_pqm(item):
     'q': quality,
     'p': popularity
   }
-
 
 def satisfy_filter_range(p, q, m):
   if p > 30 and q > 60 and m > 30:
@@ -138,7 +133,6 @@ def req_pkg_details(url, info, proxy_url):
     pkg_name = info['pkg_name']
 
     logger.info('StatusCode:(' + str(r.status_code) + ')  ' + 'Package: ' + pkg_name + ' --- ' + url)
-    # 存放到mysql
     save_to_mysql(
       pkg_name,
       url,
@@ -155,7 +149,6 @@ def req_pkg_details(url, info, proxy_url):
     logger.error('Error(150):' + str(e))
     return
   return
-
 
 def easy_req(keywords_stack, visited, **a):
   pop = keywords_stack.pop()
@@ -232,9 +225,7 @@ def get_each_page_by_keywords(k_url=None, keywords_stack=[], visited=[], m=30, q
 
 # dfs
 def npm_fantastic_start():
-  # 关键词
   keywords_stack = []
-  # 访问过的就不访问
   visited = []
   initial_url = 'https://npmjs.com/search?q=muguet'
   for (a, b) in optlist:
@@ -250,7 +241,6 @@ def npm_fantastic_start():
       get_each_page_by_keywords(initial_url, keywords_stack, visited, p=int(b))
     else:
       get_each_page_by_keywords(initial_url, keywords_stack, visited)
-
 
 if __name__ == '__main__':
   npm_fantastic_start()
